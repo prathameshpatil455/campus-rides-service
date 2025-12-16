@@ -8,30 +8,30 @@ This document tracks all features and their implementation status across the cam
 
 ### User Registration
 
-- [ ] POST `/api/auth/register` - Register new user
-- [ ] College domain email validation
-- [ ] Password hashing with bcrypt
-- [ ] Email verification flow
-- [ ] Prevent duplicate email registration
+- [x] POST `/api/auth/register` - Register new user
+- [x] College domain email validation
+- [x] Password hashing with bcrypt
+- [x] Email verification flow
+- [x] Prevent duplicate email registration
 
 ### User Login
 
-- [ ] POST `/api/auth/login` - User login
-- [ ] JWT token generation
-- [ ] Token expiration handling
-- [ ] Invalid credentials handling
+- [x] POST `/api/auth/login` - User login
+- [x] JWT token generation
+- [x] Token expiration handling
+- [x] Invalid credentials handling
 
 ### Email Verification
 
-- [ ] POST `/api/auth/verify-email` - Verify email address
-- [ ] Email verification token generation
-- [ ] Nodemailer integration for sending verification emails
+- [x] POST `/api/auth/verify-email` - Verify email address
+- [x] Email verification token generation
+- [x] Nodemailer integration for sending verification emails
 
 ### Middleware
 
-- [ ] JWT authentication middleware
-- [ ] Role-based access control (driver/passenger)
-- [ ] Admin role protection
+- [x] JWT authentication middleware
+- [x] Role-based access control (driver/passenger)
+- [x] Admin role protection
 
 ---
 
@@ -63,19 +63,21 @@ This document tracks all features and their implementation status across the cam
 
 ### Ride APIs
 
-- [ ] POST `/api/rides` - Create new ride (driver only)
-- [ ] GET `/api/rides` - List all available rides (with filters)
-- [ ] GET `/api/rides/:id` - Get ride details
-- [ ] PUT `/api/rides/:id` - Update ride (owner only)
-- [ ] DELETE `/api/rides/:id` - Delete ride (owner only)
-- [ ] GET `/api/rides/my` - Get current user's rides
+- [x] POST `/api/rides` - Create new ride (driver only)
+- [x] GET `/api/rides` - List all available rides (with filters)
+- [x] GET `/api/rides/:id` - Get ride details
+- [x] PUT `/api/rides/:id` - Update ride (owner only)
+- [x] DELETE `/api/rides/:id` - Delete ride (owner only)
+- [x] GET `/api/rides/my` - Get current user's rides
 
 ### Ride Logic
 
-- [ ] Prevent duplicate ride creation
-- [ ] Validate available seats > 0
-- [ ] Time validation (future dates only)
-- [ ] Location validation
+- [x] Prevent duplicate ride creation
+- [x] Validate available seats > 0
+- [x] Time validation (future dates only)
+- [x] Location validation
+- [x] Prevent deleting rides with accepted bookings
+- [x] Prevent reducing seats below accepted bookings count
 
 ---
 
@@ -148,11 +150,11 @@ This document tracks all features and their implementation status across the cam
 ### Security
 
 - [x] CORS configuration for `campus-rides-web`
-- [ ] Environment variables for secrets
-- [ ] JWT secret management
-- [ ] Password strength validation
+- [x] Environment variables for secrets
+- [x] JWT secret management
+- [x] Password strength validation
 - [ ] Rate limiting (optional)
-- [ ] Input validation and sanitization
+- [x] Input validation and sanitization
 
 ### Database
 
@@ -163,10 +165,10 @@ This document tracks all features and their implementation status across the cam
 
 ### Error Handling
 
-- [ ] Global error handler middleware
-- [ ] Consistent error response format
-- [ ] 404 handler
-- [ ] Validation error formatting
+- [x] Global error handler middleware
+- [x] Consistent error response format
+- [x] 404 handler
+- [x] Validation error formatting
 
 ### API Standards
 
