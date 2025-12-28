@@ -45,7 +45,7 @@ export const getRides = async (req, res, next) => {
     const skip = (pageNum - 1) * limitNum;
 
     const rides = await Ride.find(query)
-      .populate("driverId", "name email department year")
+      .populate("driverId", "firstName lastName email department year")
       .sort({ time: 1 })
       .skip(skip)
       .limit(limitNum);

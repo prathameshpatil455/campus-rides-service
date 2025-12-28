@@ -8,10 +8,11 @@ import {
   getMyRides,
 } from "../controllers/rides/index.js";
 import authMiddleware from "../middlewares/authMiddleware.js";
+import { verifyDriver } from "../middlewares/index.js";
 
 const router = express.Router();
 
-router.post("/", authMiddleware, createRide);
+router.post("/", authMiddleware, verifyDriver, createRide);
 router.get("/", getRides);
 router.get("/my", authMiddleware, getMyRides);
 router.get("/:id", getRideById);

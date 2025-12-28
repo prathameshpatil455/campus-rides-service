@@ -86,7 +86,7 @@ export const updateRide = async (req, res, next) => {
 
     const updatedRide = await Ride.findById(id).populate(
       "driverId",
-      "name email department year"
+      "firstName lastName email department year"
     );
 
     res.json({

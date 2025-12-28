@@ -44,7 +44,7 @@ export const createRide = async (req, res, next) => {
 
     const populatedRide = await Ride.findById(ride._id).populate(
       "driverId",
-      "name email department year"
+      "firstName lastName email department year"
     );
 
     res.status(201).json({

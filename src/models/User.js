@@ -4,9 +4,14 @@ import { USER_ROLES } from "../utils/constants.js";
 
 const userSchema = new mongoose.Schema(
   {
-    name: {
+    firstName: {
       type: String,
-      required: [true, "Name is required"],
+      required: [true, "First name is required"],
+      trim: true,
+    },
+    lastName: {
+      type: String,
+      required: [true, "Last name is required"],
       trim: true,
     },
     email: {
@@ -19,6 +24,12 @@ const userSchema = new mongoose.Schema(
         /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
         "Please provide a valid email address",
       ],
+    },
+    studentIdNumber: {
+      type: String,
+      required: [true, "Student ID number is required"],
+      unique: true,
+      trim: true,
     },
     department: {
       type: String,
@@ -41,9 +52,45 @@ const userSchema = new mongoose.Schema(
       minlength: [6, "Password must be at least 6 characters"],
       select: false,
     },
+    profileImage: {
+      type: String,
+      default: "",
+    },
     isEmailVerified: {
       type: Boolean,
       default: false,
+    },
+    isDriverVerified: {
+      type: Boolean,
+      default: false,
+    },
+    documents: {
+      studentIDUrl: {
+        type: String,
+        default: "",
+      },
+      licenseUrl: {
+        type: String,
+        default: "",
+      },
+    },
+    vehicleInfo: {
+      model: {
+        type: String,
+        default: "",
+      },
+      color: {
+        type: String,
+        default: "",
+      },
+      plateNumber: {
+        type: String,
+        default: "",
+      },
+    },
+    fcmToken: {
+      type: String,
+      default: null,
     },
     isBlocked: {
       type: Boolean,
@@ -72,9 +119,14 @@ userSchema.methods.comparePassword = async function (candidatePassword) {
   return await bcrypt.compare(candidatePassword, this.password);
 };
 
+userSchema.virtual("fullName").get(function () {
+  return `${this.firstName} ${this.lastName}`;
+});
+
 userSchema.methods.toJSON = function () {
   const userObject = this.toObject();
   delete userObject.password;
+  userObject.fullName = this.fullName;
   return userObject;
 };
 

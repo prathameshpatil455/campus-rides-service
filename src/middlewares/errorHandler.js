@@ -1,6 +1,15 @@
+import logger from "../utils/logger.js";
+
 const errorHandler = (err, req, res, next) => {
   let error = { ...err };
   error.message = err.message;
+
+  logger.error("Unhandled error occurred", {
+    requestId: req.requestId,
+    path: req.path,
+    method: req.method,
+    error: err,
+  });
 
   if (err.name === "CastError") {
     const message = "Resource not found";

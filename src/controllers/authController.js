@@ -1,11 +1,85 @@
 import User from "../models/User.js";
 import jwtService from "../services/jwtService.js";
 import emailService from "../services/emailService.js";
-import { validateCollegeEmail, validatePassword, validateYear } from "../utils/validators.js";
+import storageService from "../services/storageService.js";
+import {
+  validateCollegeEmail,
+  validatePassword,
+  validateYear,
+} from "../utils/validators.js";
+import { logOperation } from "../utils/logger.js";
 
 export const register = async (req, res, next) => {
+  const operation = await logOperation("user_registration", {
+    email: req.body.email,
+    role: req.body.role || "passenger",
+  });
+
   try {
-    const { name, email, department, year, role, password } = req.body;
+    const {
+      firstName,
+      lastName,
+      email,
+      studentIdNumber,
+      department,
+      year,
+      role,
+      password,
+    } = req.body;
+
+    let studentIDUrl = "";
+    let licenseUrl = "";
+
+    if (req.files) {
+      if (req.files.studentID && req.files.studentID[0]) {
+        try {
+          studentIDUrl = await storageService.uploadFile(
+            req.files.studentID[0],
+            "student-ids"
+          );
+        } catch (uploadError) {
+          return res.status(500).json({
+            success: false,
+            message: "Failed to upload student ID document",
+          });
+        }
+      }
+
+      if (req.files.license && req.files.license[0]) {
+        try {
+          licenseUrl = await storageService.uploadFile(
+            req.files.license[0],
+            "licenses"
+          );
+        } catch (uploadError) {
+          if (studentIDUrl) {
+            try {
+              await storageService.deleteFile(studentIDUrl);
+            } catch (deleteError) {
+              console.error("Error cleaning up student ID file:", deleteError);
+            }
+          }
+          return res.status(500).json({
+            success: false,
+            message: "Failed to upload license document",
+          });
+        }
+      }
+    }
+
+    if (!firstName || !lastName) {
+      return res.status(400).json({
+        success: false,
+        message: "First name and last name are required",
+      });
+    }
+
+    if (!studentIdNumber) {
+      return res.status(400).json({
+        success: false,
+        message: "Student ID number is required",
+      });
+    }
 
     const emailValidation = validateCollegeEmail(email);
     if (!emailValidation.valid) {
@@ -31,24 +105,34 @@ export const register = async (req, res, next) => {
       });
     }
 
-    const existingUser = await User.findOne({ email: email.toLowerCase() });
+    const existingUser = await User.findOne({
+      $or: [{ email: email.toLowerCase() }, { studentIdNumber }],
+    });
     if (existingUser) {
       return res.status(400).json({
         success: false,
-        message: "User with this email already exists",
+        message: "User with this email or student ID already exists",
       });
     }
 
     const user = await User.create({
-      name,
+      firstName,
+      lastName,
       email: email.toLowerCase(),
+      studentIdNumber,
       department,
       year,
       role: role || "passenger",
       password,
+      documents: {
+        studentIDUrl,
+        licenseUrl,
+      },
     });
 
-    const verificationToken = jwtService.generateEmailVerificationToken(user._id);
+    const verificationToken = jwtService.generateEmailVerificationToken(
+      user._id
+    );
 
     try {
       await emailService.sendVerificationEmail(user.email, verificationToken);
@@ -58,12 +142,16 @@ export const register = async (req, res, next) => {
 
     res.status(201).json({
       success: true,
-      message: "Registration successful. Please check your email to verify your account.",
+      message:
+        "Registration successful. Please check your email to verify your account.",
       data: {
         user: {
           id: user._id,
-          name: user.name,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          fullName: user.fullName,
           email: user.email,
+          studentIdNumber: user.studentIdNumber,
           department: user.department,
           year: user.year,
           role: user.role,
@@ -76,6 +164,10 @@ export const register = async (req, res, next) => {
 };
 
 export const login = async (req, res, next) => {
+  const operation = await logOperation("user_login", {
+    email: req.body.email,
+  });
+
   try {
     const { email, password } = req.body;
 
@@ -86,7 +178,9 @@ export const login = async (req, res, next) => {
       });
     }
 
-    const user = await User.findOne({ email: email.toLowerCase() }).select("+password");
+    const user = await User.findOne({ email: email.toLowerCase() }).select(
+      "+password"
+    );
 
     if (!user) {
       return res.status(401).json({
@@ -120,12 +214,16 @@ export const login = async (req, res, next) => {
         token,
         user: {
           id: user._id,
-          name: user.name,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          fullName: user.fullName,
           email: user.email,
+          studentIdNumber: user.studentIdNumber,
           department: user.department,
           year: user.year,
           role: user.role,
           isEmailVerified: user.isEmailVerified,
+          isDriverVerified: user.isDriverVerified,
         },
       },
     });
@@ -176,4 +274,3 @@ export const verifyEmail = async (req, res, next) => {
     });
   }
 };
-

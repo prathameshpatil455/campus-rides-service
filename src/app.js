@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import connectDB from "./config/database.js";
 import routes from "./routes/index.js";
 import errorHandler from "./middlewares/errorHandler.js";
+import requestLogger from "./middlewares/loggerMiddleware.js";
 
 dotenv.config();
 
@@ -13,6 +14,10 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+if (process.env.NODE_ENV !== "test") {
+  app.use(requestLogger);
+}
 
 app.get("/health", (req, res) => {
   res.json({
