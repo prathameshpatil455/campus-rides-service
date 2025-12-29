@@ -4,20 +4,15 @@ const errorHandler = (err, req, res, next) => {
   let error = { ...err };
   error.message = err.message;
 
-  logger.error("Unhandled error occurred", {
-    requestId: req.requestId,
-    path: req.path,
-    method: req.method,
-    error: err,
-  });
-
   if (err.name === "CastError") {
     const message = "Resource not found";
     error = { message, statusCode: 404 };
   }
 
   if (err.name === "ValidationError") {
-    const message = Object.values(err.errors).map((val) => val.message).join(", ");
+    const message = Object.values(err.errors)
+      .map((val) => val.message)
+      .join(", ");
     error = { message, statusCode: 400 };
   }
 
@@ -37,10 +32,13 @@ const errorHandler = (err, req, res, next) => {
     error = { message, statusCode: 401 };
   }
 
-  const statusCode = error.statusCode || 500;
+  error.statusCode = error.statusCode || 500;
+
+  logger.error(`${req.method} ${req.path} - Unhandled error`, error);
+
   const message = error.message || "Server Error";
 
-  res.status(statusCode).json({
+  res.status(error.statusCode).json({
     success: false,
     message,
     ...(process.env.NODE_ENV === "development" && { stack: err.stack }),
@@ -48,4 +46,3 @@ const errorHandler = (err, req, res, next) => {
 };
 
 export default errorHandler;
-

@@ -140,25 +140,18 @@ export const register = async (req, res, next) => {
       console.error("Failed to send verification email:", emailError);
     }
 
+    operation.logSuccess("Registration successful", {
+      email: user.email,
+      userId: user._id.toString(),
+    });
+
     res.status(201).json({
       success: true,
       message:
         "Registration successful. Please check your email to verify your account.",
-      data: {
-        user: {
-          id: user._id,
-          firstName: user.firstName,
-          lastName: user.lastName,
-          fullName: user.fullName,
-          email: user.email,
-          studentIdNumber: user.studentIdNumber,
-          department: user.department,
-          year: user.year,
-          role: user.role,
-        },
-      },
     });
   } catch (error) {
+    operation.logError(error, "Registration failed");
     next(error);
   }
 };
@@ -207,27 +200,22 @@ export const login = async (req, res, next) => {
 
     const token = jwtService.generateToken(user._id);
 
+    operation.logSuccess("Login successful", {
+      email: user.email,
+      userId: user._id.toString(),
+    });
+
     res.json({
       success: true,
       message: "Login successful",
       data: {
         token,
-        user: {
-          id: user._id,
-          firstName: user.firstName,
-          lastName: user.lastName,
-          fullName: user.fullName,
-          email: user.email,
-          studentIdNumber: user.studentIdNumber,
-          department: user.department,
-          year: user.year,
-          role: user.role,
-          isEmailVerified: user.isEmailVerified,
-          isDriverVerified: user.isDriverVerified,
-        },
+        userId: user._id,
+        userInfo: user,
       },
     });
   } catch (error) {
+    operation.logError(error, "Login failed");
     next(error);
   }
 };

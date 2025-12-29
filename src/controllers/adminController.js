@@ -22,18 +22,16 @@ export const getPendingVerifications = async (req, res, next) => {
     };
 
     const pendingUsers = await User.find(query)
-      .select("firstName lastName email studentIdNumber department year documents createdAt")
+      .select(
+        "firstName lastName email studentIdNumber department year documents createdAt"
+      )
       .sort({ createdAt: 1 })
       .skip(skip)
       .limit(limitNum);
 
     const total = await User.countDocuments(query);
 
-    operation.logSuccess("Pending verifications retrieved", {
-      count: pendingUsers.length,
-      total,
-      page: pageNum,
-    });
+    operation.logSuccess("Fetched pending verifications successfully");
 
     res.json({
       success: true,
@@ -79,7 +77,8 @@ export const verifyDriverByAdmin = async (req, res, next) => {
     if (!user.documents.studentIDUrl || !user.documents.licenseUrl) {
       return res.status(400).json({
         success: false,
-        message: "User has not uploaded required documents (student ID and license)",
+        message:
+          "User has not uploaded required documents (student ID and license)",
       });
     }
 
@@ -96,24 +95,14 @@ export const verifyDriverByAdmin = async (req, res, next) => {
       operation.logError(emailError, "Failed to send verification email");
     }
 
-    operation.logSuccess("Driver verified successfully", {
-      driverId: user._id.toString(),
+    operation.logSuccess("Driver verification successful", {
       email: user.email,
-      verifiedBy: req.user._id.toString(),
+      userId: user._id.toString(),
     });
 
     res.json({
       success: true,
       message: "Driver verified successfully",
-      data: {
-        user: {
-          id: user._id,
-          firstName: user.firstName,
-          lastName: user.lastName,
-          email: user.email,
-          isDriverVerified: user.isDriverVerified,
-        },
-      },
     });
   } catch (error) {
     operation.logError(error, "Driver verification failed");
@@ -171,27 +160,16 @@ export const rejectDriverVerification = async (req, res, next) => {
     }
 
     operation.logSuccess("Driver verification rejected", {
-      driverId: user._id.toString(),
       email: user.email,
-      rejectedBy: req.user._id.toString(),
-      reason,
+      userId: user._id.toString(),
     });
 
     res.json({
       success: true,
       message: "Driver verification rejected successfully",
-      data: {
-        user: {
-          id: user._id,
-          firstName: user.firstName,
-          lastName: user.lastName,
-          email: user.email,
-        },
-      },
     });
   } catch (error) {
     operation.logError(error, "Driver rejection failed");
     next(error);
   }
 };
-
