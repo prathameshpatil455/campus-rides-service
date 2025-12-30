@@ -9,4 +9,11 @@ export const BOOKING_STATUS = {
   REJECTED: "rejected",
 };
 
+export const RIDE_STATUS = {
+  SCHEDULED: "scheduled",
+  ACTIVE: "active",
+  COMPLETED: "completed",
+  CANCELLED: "cancelled",
+};
+
 export const COLLEGE_DOMAIN = process.env.COLLEGE_DOMAIN || "@rvce.edu.in";

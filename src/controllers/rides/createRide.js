@@ -33,7 +33,7 @@ export const createRide = async (req, res, next) => {
       });
     }
 
-    const ride = await Ride.create({
+    await Ride.create({
       driverId: req.user._id,
       pickup: pickup.trim(),
       destination: destination.trim(),
@@ -42,18 +42,11 @@ export const createRide = async (req, res, next) => {
       price: price ? parseFloat(price) : 0,
     });
 
-    const populatedRide = await Ride.findById(ride._id).populate(
-      "driverId",
-      "name email department year"
-    );
-
     res.status(201).json({
       success: true,
       message: "Ride created successfully",
-      data: populatedRide,
     });
   } catch (error) {
     next(error);
   }
 };
-

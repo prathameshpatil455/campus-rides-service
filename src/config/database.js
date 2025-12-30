@@ -7,8 +7,15 @@ const connectDB = async () => {
         "MONGODB_URI is not defined in environment variables. Please create a .env file with MONGODB_URI."
       );
     }
-    const conn = await mongoose.connect(process.env.MONGODB_URI);
+
+    const dbName = process.env.DB_NAME || "campusRides";
+
+    const conn = await mongoose.connect(process.env.MONGODB_URI, {
+      dbName: dbName,
+    });
+
     console.log(`✅ MongoDB Connected: ${conn.connection.host}`);
+    console.log(`📊 Database: ${conn.connection.name}`);
     return conn;
   } catch (error) {
     console.error(`❌ MongoDB connection error: ${error.message}`);

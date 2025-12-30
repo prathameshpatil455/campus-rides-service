@@ -8,7 +8,7 @@ export const getRideById = async (req, res, next) => {
 
     const ride = await Ride.findById(id).populate(
       "driverId",
-      "name email department year"
+      "firstName lastName email department year"
     );
 
     if (!ride) {
@@ -21,7 +21,7 @@ export const getRideById = async (req, res, next) => {
     const bookings = await Booking.find({
       rideId: id,
       status: BOOKING_STATUS.ACCEPTED,
-    }).populate("passengerId", "name email department year");
+    }).populate("passengerId", "firstName lastName email department year");
 
     res.json({
       success: true,

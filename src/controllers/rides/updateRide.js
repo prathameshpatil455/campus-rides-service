@@ -84,18 +84,11 @@ export const updateRide = async (req, res, next) => {
 
     await ride.save();
 
-    const updatedRide = await Ride.findById(id).populate(
-      "driverId",
-      "name email department year"
-    );
-
     res.json({
       success: true,
       message: "Ride updated successfully",
-      data: updatedRide,
     });
   } catch (error) {
     next(error);
   }
 };
-
