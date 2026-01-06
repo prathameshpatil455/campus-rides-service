@@ -1,6 +1,7 @@
 import User from "../models/User.js";
 import emailService from "../services/emailService.js";
 import storageService from "../services/storageService.js";
+import { USER_ROLES } from "../utils/constants.js";
 import { logOperation } from "../utils/logger.js";
 
 export const getPendingVerifications = async (req, res, next) => {
@@ -16,7 +17,6 @@ export const getPendingVerifications = async (req, res, next) => {
 
     const query = {
       isDriverVerified: false,
-      role: "driver",
       "documents.studentIDUrl": { $ne: "" },
       "documents.licenseUrl": { $ne: "" },
     };
@@ -83,6 +83,11 @@ export const verifyDriverByAdmin = async (req, res, next) => {
     }
 
     user.isDriverVerified = true;
+
+    if (!user.roles.includes(USER_ROLES.DRIVER)) {
+      user.roles.push(USER_ROLES.DRIVER);
+    }
+
     await user.save();
 
     try {
