@@ -41,10 +41,10 @@ const userSchema = new mongoose.Schema(
       required: [true, "Year is required"],
       trim: true,
     },
-    role: {
-      type: String,
+    roles: {
+      type: [String],
       enum: [USER_ROLES.DRIVER, USER_ROLES.PASSENGER],
-      default: USER_ROLES.PASSENGER,
+      default: [USER_ROLES.PASSENGER],
     },
     password: {
       type: String,

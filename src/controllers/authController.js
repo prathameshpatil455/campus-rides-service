@@ -1,18 +1,11 @@
 import User from "../models/User.js";
 import jwtService from "../services/jwtService.js";
 import emailService from "../services/emailService.js";
-import storageService from "../services/storageService.js";
-import {
-  validateCollegeEmail,
-  validatePassword,
-  validateYear,
-} from "../utils/validators.js";
 import { logOperation } from "../utils/logger.js";
 
 export const register = async (req, res, next) => {
   const operation = await logOperation("user_registration", {
     email: req.body.email,
-    role: req.body.role || "passenger",
   });
 
   try {
@@ -23,87 +16,8 @@ export const register = async (req, res, next) => {
       studentIdNumber,
       department,
       year,
-      role,
       password,
     } = req.body;
-
-    let studentIDUrl = "";
-    let licenseUrl = "";
-
-    if (req.files) {
-      if (req.files.studentID && req.files.studentID[0]) {
-        try {
-          studentIDUrl = await storageService.uploadFile(
-            req.files.studentID[0],
-            "student-ids"
-          );
-        } catch (uploadError) {
-          return res.status(500).json({
-            success: false,
-            message: "Failed to upload student ID document",
-          });
-        }
-      }
-
-      if (req.files.license && req.files.license[0]) {
-        try {
-          licenseUrl = await storageService.uploadFile(
-            req.files.license[0],
-            "licenses"
-          );
-        } catch (uploadError) {
-          if (studentIDUrl) {
-            try {
-              await storageService.deleteFile(studentIDUrl);
-            } catch (deleteError) {
-              console.error("Error cleaning up student ID file:", deleteError);
-            }
-          }
-          return res.status(500).json({
-            success: false,
-            message: "Failed to upload license document",
-          });
-        }
-      }
-    }
-
-    if (!firstName || !lastName) {
-      return res.status(400).json({
-        success: false,
-        message: "First name and last name are required",
-      });
-    }
-
-    if (!studentIdNumber) {
-      return res.status(400).json({
-        success: false,
-        message: "Student ID number is required",
-      });
-    }
-
-    const emailValidation = validateCollegeEmail(email);
-    if (!emailValidation.valid) {
-      return res.status(400).json({
-        success: false,
-        message: emailValidation.message,
-      });
-    }
-
-    const passwordValidation = validatePassword(password);
-    if (!passwordValidation.valid) {
-      return res.status(400).json({
-        success: false,
-        message: passwordValidation.message,
-      });
-    }
-
-    const yearValidation = validateYear(year);
-    if (!yearValidation.valid) {
-      return res.status(400).json({
-        success: false,
-        message: yearValidation.message,
-      });
-    }
 
     const existingUser = await User.findOne({
       $or: [{ email: email.toLowerCase() }, { studentIdNumber }],
@@ -122,12 +36,7 @@ export const register = async (req, res, next) => {
       studentIdNumber,
       department,
       year,
-      role: role || "passenger",
       password,
-      documents: {
-        studentIDUrl,
-        licenseUrl,
-      },
     });
 
     const verificationToken = jwtService.generateEmailVerificationToken(
@@ -163,13 +72,6 @@ export const login = async (req, res, next) => {
 
   try {
     const { email, password } = req.body;
-
-    if (!email || !password) {
-      return res.status(400).json({
-        success: false,
-        message: "Email and password are required",
-      });
-    }
 
     const user = await User.findOne({ email: email.toLowerCase() }).select(
       "+password"
@@ -211,7 +113,6 @@ export const login = async (req, res, next) => {
       data: {
         token,
         userId: user._id,
-        userInfo: user,
       },
     });
   } catch (error) {
@@ -223,13 +124,6 @@ export const login = async (req, res, next) => {
 export const verifyEmail = async (req, res, next) => {
   try {
     const { token } = req.body;
-
-    if (!token) {
-      return res.status(400).json({
-        success: false,
-        message: "Verification token is required",
-      });
-    }
 
     const decoded = jwtService.verifyEmailToken(token);
     const user = await User.findById(decoded.userId);
