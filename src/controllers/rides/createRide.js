@@ -4,10 +4,44 @@ export const createRide = async (req, res, next) => {
   try {
     const { pickup, destination, time, availableSeats, price } = req.body;
 
-    if (!pickup || !destination || !time || !availableSeats) {
+    if (
+      !pickup ||
+      !destination ||
+      !time ||
+      !availableSeats ||
+      !pickup.type ||
+      !destination.type ||
+      !pickup.name ||
+      !destination.name
+    ) {
       return res.status(400).json({
         success: false,
-        message: "Pickup, destination, time, and availableSeats are required",
+        message: "Invalid location data. Type and name are required.",
+      });
+    }
+
+    // Validate specific location types
+    const validateLocation = (loc, fieldName) => {
+      if (loc.type === "gps") {
+        if (!loc.coordinates?.latitude || !loc.coordinates?.longitude) {
+          throw new Error(
+            `${fieldName}: GPS coordinates (latitude, longitude) are required`
+          );
+        }
+      } else if (loc.type === "digipin") {
+        if (!loc.digipin) {
+          throw new Error(`${fieldName}: Digipin is required`);
+        }
+      }
+    };
+
+    try {
+      validateLocation(pickup, "Pickup");
+      validateLocation(destination, "Destination");
+    } catch (err) {
+      return res.status(400).json({
+        success: false,
+        message: err.message,
       });
     }
 
@@ -35,8 +69,8 @@ export const createRide = async (req, res, next) => {
 
     await Ride.create({
       driverId: req.user._id,
-      pickup: pickup.trim(),
-      destination: destination.trim(),
+      pickup,
+      destination,
       time: rideTime,
       availableSeats: parseInt(availableSeats),
       price: price ? parseFloat(price) : 0,

@@ -15,7 +15,7 @@ export const getMyRides = async (req, res, next) => {
     const skip = (pageNum - 1) * limitNum;
 
     const rides = await Ride.find(query)
-      .populate("driverId", "firstName lastName email department year")
+      .populate("driverId", "firstName lastName email year")
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limitNum);
@@ -25,7 +25,7 @@ export const getMyRides = async (req, res, next) => {
     for (const ride of rides) {
       const bookings = await Booking.find({ rideId: ride._id }).populate(
         "passengerId",
-        "firstName lastName email department year"
+        "firstName lastName email year"
       );
       ride.bookings = bookings;
     }
