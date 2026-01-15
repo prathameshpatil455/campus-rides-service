@@ -6,7 +6,8 @@
   "type": "module",
   "scripts": {
     "start": "node src/app.js",
-    "dev": "nodemon src/app.js"
+    "dev": "nodemon src/app.js",
+    "seed:conversation": "node scripts/seedTestConversation.js"
   },
   "keywords": [
     "campus",

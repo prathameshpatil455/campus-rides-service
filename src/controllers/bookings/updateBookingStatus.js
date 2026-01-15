@@ -2,6 +2,7 @@ import Booking from "../../models/Booking.js";
 import Ride from "../../models/Ride.js";
 import { BOOKING_STATUS } from "../../utils/constants.js";
 import { logOperation } from "../../utils/logger.js";
+import { enableConversationForRide } from "../../services/conversationService.js";
 
 export const updateBookingStatus = async (req, res, next) => {
   const operation = await logOperation("update_booking_status", {
@@ -66,6 +67,12 @@ export const updateBookingStatus = async (req, res, next) => {
     await booking.save();
 
     if (status === BOOKING_STATUS.ACCEPTED) {
+      try {
+        await enableConversationForRide(ride._id);
+      } catch (error) {
+        console.error("Error enabling conversation for ride:", error);
+      }
+
       const acceptedCount = await Booking.countDocuments({
         rideId: ride._id,
         status: BOOKING_STATUS.ACCEPTED,
