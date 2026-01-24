@@ -1,5 +1,31 @@
 import mongoose from "mongoose";
 
+const locationSchema = new mongoose.Schema({
+  type: {
+    type: String,
+    enum: ["gps", "digipin"],
+    required: true,
+  },
+  name: {
+    type: String,
+    required: true,
+    trim: true,
+  },
+  coordinates: {
+    latitude: {
+      type: Number,
+    },
+    longitude: {
+      type: Number,
+    },
+  },
+  digipin: {
+    type: String,
+    trim: true,
+  },
+});
+
+
 const rideSchema = new mongoose.Schema(
   {
     driverId: {
@@ -8,14 +34,12 @@ const rideSchema = new mongoose.Schema(
       required: [true, "Driver ID is required"],
     },
     pickup: {
-      type: String,
+      type: locationSchema,
       required: [true, "Pickup location is required"],
-      trim: true,
     },
     destination: {
-      type: String,
+      type: locationSchema,
       required: [true, "Destination is required"],
-      trim: true,
     },
     time: {
       type: Date,

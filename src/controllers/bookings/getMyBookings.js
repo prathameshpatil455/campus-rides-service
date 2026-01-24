@@ -22,7 +22,7 @@ export const getMyBookings = async (req, res, next) => {
         "rideId",
         "pickup destination time availableSeats price status driverId"
       )
-      .populate("rideId.driverId", "firstName lastName email department year")
+      .populate("rideId.driverId", "firstName lastName email year")
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limitNum);
