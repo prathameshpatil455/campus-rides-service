@@ -1,5 +1,10 @@
 import express from "express";
-import { getPendingVerifications, verifyDriverByAdmin, rejectDriverVerification } from "../controllers/adminController.js";
+import {
+  getDashboardStats,
+  getPendingVerifications,
+  verifyDocument,
+  rejectDocument,
+} from "../controllers/adminController.js";
 import authMiddleware, { adminMiddleware } from "../middlewares/authMiddleware.js";
 
 const router = express.Router();
@@ -7,9 +12,10 @@ const router = express.Router();
 router.use(authMiddleware);
 router.use(adminMiddleware);
 
+router.get("/stats", getDashboardStats);
 router.get("/pending", getPendingVerifications);
-router.patch("/verify/:id", verifyDriverByAdmin);
-router.patch("/reject/:id", rejectDriverVerification);
+router.patch("/documents/:userId/:documentType/verify", verifyDocument);
+router.patch("/documents/:userId/:documentType/reject", rejectDocument);
 
 export default router;
 

@@ -7,7 +7,7 @@ export const updateProfile = async (req, res, next) => {
   });
 
   try {
-    const { firstName, lastName, vehicleInfo } = req.body;
+    const { firstName, lastName, department, year, vehicleInfo } = req.body;
 
     const user = await User.findById(req.user._id);
 
@@ -38,6 +38,26 @@ export const updateProfile = async (req, res, next) => {
         });
       }
       updateData.lastName = lastName.trim();
+    }
+
+    if (department !== undefined) {
+      if (!department.trim()) {
+        return res.status(400).json({
+          success: false,
+          message: "Department cannot be empty",
+        });
+      }
+      updateData.department = department.trim();
+    }
+
+    if (year !== undefined) {
+      if (!year.trim()) {
+        return res.status(400).json({
+          success: false,
+          message: "Year cannot be empty",
+        });
+      }
+      updateData.year = year.trim();
     }
 
     if (vehicleInfo !== undefined) {
@@ -84,6 +104,8 @@ export const updateProfile = async (req, res, next) => {
     if (
       firstName === undefined &&
       lastName === undefined &&
+      department === undefined &&
+      year === undefined &&
       vehicleInfo === undefined
     ) {
       return res.status(400).json({
@@ -98,6 +120,14 @@ export const updateProfile = async (req, res, next) => {
 
     if (lastName !== undefined) {
       user.lastName = updateData.lastName;
+    }
+
+    if (department !== undefined) {
+      user.department = updateData.department;
+    }
+
+    if (year !== undefined) {
+      user.year = updateData.year;
     }
 
     if (vehicleInfo !== undefined) {

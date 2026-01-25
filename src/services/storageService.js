@@ -83,8 +83,37 @@ const getFile = async (fileId) => {
   return bucket.openDownloadStream(new mongoose.Types.ObjectId(fileId));
 };
 
+const getFileMetadata = async (fileId) => {
+  const bucket = getBucket();
+  if (!bucket) {
+    throw new Error("Database connection not available");
+  }
+
+  if (!mongoose.Types.ObjectId.isValid(fileId)) {
+    throw new Error("Invalid file ID");
+  }
+
+  const filesCollection = bucket.s._filesCollection;
+  const fileInfo = await filesCollection.findOne({ _id: new mongoose.Types.ObjectId(fileId) });
+
+  if (!fileInfo) {
+    throw new Error("File not found");
+  }
+
+  const filename = fileInfo.filename || "";
+  const fileExtension = filename.split(".").pop();
+
+  return {
+    filename: fileInfo.filename,
+    contentType: fileInfo.contentType,
+    extension: fileExtension,
+    metadata: fileInfo.metadata,
+  };
+};
+
 export default {
   uploadFile,
   deleteFile,
   getFile,
+  getFileMetadata,
 };
