@@ -5,7 +5,12 @@ const router = express.Router();
 
 router.get("/:fileId", async (req, res, next) => {
   try {
-    const { fileId } = req.params;
+    let { fileId } = req.params;
+    
+    if (fileId.includes(".")) {
+      fileId = fileId.split(".")[0];
+    }
+    
     const downloadStream = await storageService.getFile(fileId);
 
     downloadStream.on("error", (error) => {

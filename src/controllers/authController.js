@@ -2,6 +2,7 @@ import User from "../models/User.js";
 import jwtService from "../services/jwtService.js";
 import emailService from "../services/emailService.js";
 import { logOperation } from "../utils/logger.js";
+import { COLLEGE_DOMAIN } from "../utils/constants.js";
 
 export const register = async (req, res, next) => {
   const operation = await logOperation("user_registration", {
@@ -29,36 +30,47 @@ export const register = async (req, res, next) => {
       });
     }
 
+    const emailLower = email.toLowerCase();
+    const isCollegeEmail = emailLower.endsWith(COLLEGE_DOMAIN.toLowerCase());
+
     const user = await User.create({
       firstName,
       lastName,
-      email: email.toLowerCase(),
+      email: emailLower,
       studentIdNumber,
       department,
       year,
       password,
+      isEmailVerified: isCollegeEmail,
     });
 
-    const verificationToken = jwtService.generateEmailVerificationToken(
-      user._id
-    );
+    if (isCollegeEmail) {
+      operation.logSuccess("Registration successful - Email auto-verified", {
+        email: user.email,
+        userId: user._id.toString(),
+      });
 
-    try {
-      await emailService.sendVerificationEmail(user.email, verificationToken);
-    } catch (emailError) {
-      console.error("Failed to send verification email:", emailError);
     }
 
-    operation.logSuccess("Registration successful", {
-      email: user.email,
-      userId: user._id.toString(),
-    });
+      const verificationToken = jwtService.generateEmailVerificationToken(
+        user._id
+      );
 
-    res.status(201).json({
-      success: true,
-      message:
-        "Registration successful. Please check your email to verify your account.",
-    });
+      try {
+        await emailService.sendVerificationEmail(user.email, verificationToken);
+      } catch (emailError) {
+        console.error("Failed to send verification email:", emailError);
+      }
+
+      operation.logSuccess("Registration successful", {
+        email: user.email,
+        userId: user._id.toString(),
+      });
+
+      res.status(201).json({
+        success: true,
+        message: isCollegeEmail ? "Registration successful. Your email has been automatically verified." : "Registration successful. Please check your email to verify your account.",
+      });
   } catch (error) {
     operation.logError(error, "Registration failed");
     next(error);

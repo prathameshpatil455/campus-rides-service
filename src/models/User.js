@@ -69,9 +69,40 @@ const userSchema = new mongoose.Schema(
         type: String,
         default: "",
       },
+      studentIDStatus: {
+        type: String,
+        enum: ["not_uploaded", "pending", "verified", "rejected"],
+        default: "not_uploaded",
+      },
+      studentIDUploadedAt: {
+        type: Date,
+        default: null,
+      },
       licenseUrl: {
         type: String,
         default: "",
+      },
+      licenseStatus: {
+        type: String,
+        enum: ["not_uploaded", "pending", "verified", "rejected"],
+        default: "not_uploaded",
+      },
+      licenseUploadedAt: {
+        type: Date,
+        default: null,
+      },
+      profilePhotoUrl: {
+        type: String,
+        default: "",
+      },
+      profilePhotoStatus: {
+        type: String,
+        enum: ["not_uploaded", "pending", "verified", "rejected"],
+        default: "not_uploaded",
+      },
+      profilePhotoUploadedAt: {
+        type: Date,
+        default: null,
       },
     },
     vehicleInfo: {
