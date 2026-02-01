@@ -1,6 +1,10 @@
 import Ride from "../../models/Ride.js";
 import Booking from "../../models/Booking.js";
 import { BOOKING_STATUS } from "../../utils/constants.js";
+import {
+  enableConversationForRide,
+  disableConversationForRide,
+} from "../../services/conversationService.js";
 
 export const updateRide = async (req, res, next) => {
   try {
@@ -78,11 +82,25 @@ export const updateRide = async (req, res, next) => {
       ride.price = parseFloat(price);
     }
 
+    const previousStatus = ride.status;
+
     if (status && ["active", "completed", "cancelled"].includes(status)) {
       ride.status = status;
     }
 
     await ride.save();
+
+    if (status && status !== previousStatus) {
+      try {
+        if (status === "active") {
+          await enableConversationForRide(ride._id);
+        } else if (status === "completed" || status === "cancelled") {
+          await disableConversationForRide(ride._id);
+        }
+      } catch (error) {
+        console.error("Error updating conversation status:", error);
+      }
+    }
 
     res.json({
       success: true,

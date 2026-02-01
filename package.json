@@ -6,7 +6,8 @@
   "type": "module",
   "scripts": {
     "start": "node src/app.js",
-    "dev": "nodemon src/app.js"
+    "dev": "nodemon src/app.js",
+    "seed:conversation": "node scripts/seedTestConversation.js"
   },
   "keywords": [
     "campus",
@@ -26,7 +27,8 @@
     "mongoose": "^8.0.3",
     "multer": "^2.0.2",
     "nodemailer": "^6.9.7",
-    "socket.io": "^4.8.3"
+    "socket.io": "^4.8.3",
+    "yup": "^1.7.1"
   },
   "devDependencies": {
     "nodemon": "^3.0.2"

@@ -31,5 +31,7 @@ export const uploadDocuments = upload.fields([
   { name: "license", maxCount: 1 },
 ]);
 
+export const uploadSingleDocument = upload.single("file");
+
 export default upload;
 
