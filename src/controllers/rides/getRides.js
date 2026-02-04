@@ -28,10 +28,14 @@ export const getRides = async (req, res, next) => {
       query["destination.name"] = { $regex: destination, $options: "i" };
     }
 
+    query.time = query.time || {};
+    const now = new Date();
     if (minTime || maxTime) {
-      query.time = {};
       if (minTime) query.time.$gte = new Date(minTime);
       if (maxTime) query.time.$lte = new Date(maxTime);
+    }
+    if (!query.time.$gte || new Date(query.time.$gte) < now) {
+      query.time.$gte = now;
     }
 
     if (minPrice !== undefined || maxPrice !== undefined) {

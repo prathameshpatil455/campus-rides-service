@@ -2,6 +2,7 @@ import Booking from "../../models/Booking.js";
 import Ride from "../../models/Ride.js";
 import { BOOKING_STATUS } from "../../utils/constants.js";
 import { logOperation } from "../../utils/logger.js";
+import { enableConversationForRide } from "../../services/conversationService.js";
 
 export const createBooking = async (req, res, next) => {
   const operation = await logOperation("create_booking", {
@@ -69,8 +70,24 @@ export const createBooking = async (req, res, next) => {
     const booking = await Booking.create({
       rideId,
       passengerId: req.user._id,
-      status: BOOKING_STATUS.PENDING,
+      status: BOOKING_STATUS.ACCEPTED,
     });
+
+    try {
+      await enableConversationForRide(ride._id);
+    } catch (error) {
+      console.error("Error enabling conversation for ride:", error);
+    }
+
+    const acceptedCount = await Booking.countDocuments({
+      rideId,
+      status: BOOKING_STATUS.ACCEPTED,
+    });
+
+    if (acceptedCount >= ride.availableSeats) {
+      ride.status = "completed";
+      await ride.save();
+    }
 
     operation.logSuccess("Booking created successfully", {
       email: req.user.email,
@@ -79,7 +96,7 @@ export const createBooking = async (req, res, next) => {
 
     res.status(201).json({
       success: true,
-      message: "Booking request created successfully",
+      message: "Booking confirmed successfully",
     });
   } catch (error) {
     operation.logError(error, "Booking creation failed");
