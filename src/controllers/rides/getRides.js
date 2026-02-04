@@ -16,6 +16,10 @@ export const getRides = async (req, res, next) => {
 
     const query = {};
 
+    if (req.user?._id) {
+      query.driverId = { $ne: req.user._id };
+    }
+
     if (status) {
       query.status = status;
     }
@@ -70,4 +74,3 @@ export const getRides = async (req, res, next) => {
     next(error);
   }
 };
-
