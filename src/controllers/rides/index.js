@@ -4,4 +4,4 @@ export { getRideById } from "./getRideById.js";
 export { updateRide } from "./updateRide.js";
 export { deleteRide } from "./deleteRide.js";
 export { getMyRides } from "./getMyRides.js";
-
+export { completeRide } from "./completeRide.js";
